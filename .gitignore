@@ -1,0 +1,27 @@
+# Secrets / local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local-only development files
+local-server.php
+
+# Runtime-generated project data
+data/ranking.json
+data/schedule.json
+data/contact_submissions.json
+data/latest_video.json
+
+# Logs / temporary files
+logs/
+*.log
+*.tmp
+*.cache
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
