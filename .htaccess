@@ -1,0 +1,14 @@
+# ==========================================================================
+# ルート.htaccess — 本番公開用ルーティング
+#
+# ルートURL(https://sleague.rss7.net/) で public/index.php を表示し、
+# /ranking /schedule /event などの内部導線を維持します。
+# ==========================================================================
+
+RewriteEngine On
+
+# ルートURLと /index.php を public/index.php へ渡す
+RewriteRule ^(?:|index\.php)$ public/index.php [L,QSA]
+
+# 内部リンク用 /ranking /schedule /event を public/ 以下のPHPにマッピング
+RewriteRule ^(ranking|schedule|event|contact)(?:\.php)?$ public/$1.php [L,QSA]

@@ -5,17 +5,23 @@
 *.pem
 *.key
 
-# Local-only development files
+# Local-only development / one-time production helpers
 local-server.php
+gen_htpasswd.php
+cron/cron_wrapper.php
+public/check_exec.php
+public/test999.php
 
 # Runtime-generated project data
 data/ranking.json
 data/schedule.json
 data/contact_submissions.json
 data/latest_video.json
+data/instagram_targets.json
 
 # Logs / temporary files
-logs/
+logs/*
+!logs/.htaccess
 *.log
 *.tmp
 *.cache
