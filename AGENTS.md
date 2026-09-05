@@ -15,6 +15,20 @@ This repository follows the global governance in `oosaka0123-sudo/ai-master`.
 - When adding a new top-level public page, check the root `.htaccess` routing whitelist in the same task before production verification.
 - Do not modify unrelated pages or CSS during a narrow fix.
 
+## Chat persistence / knowledge routing
+
+When the user says `このチャット内容をリポジトリに保存して` or gives an equivalent instruction, do not copy the raw conversation log into the repository. Normalize only durable or restart-critical information and route it to the existing Project source of truth.
+
+- Before writing, re-read the current default branch and the relevant canonical files, plus related Issue / PR / Actions when needed.
+- Current confirmed project specification, routing behavior, page structure, data behavior, and operating constraints -> update the existing `README.md` or other clearly responsible canonical document in place.
+- Important long-lived design rationale -> create or update `DECISIONS.md` only when such a decision actually exists.
+- Reusable operational or recovery procedure -> create or update `RUNBOOK.md` only when a reusable procedure actually exists.
+- Unfinished work needed by the next AI/session -> use the Project handoff location defined by `ai-master`; if no dedicated location exists, use `HANDOFF.md`. Create it only when needed.
+- Work history already recoverable from code, Issue, Pull Request, Actions, or Commit history -> do not duplicate it into Markdown.
+- Prefer replacing stale current-state text over append-only chat summaries.
+- Never save secrets, credentials, passwords, tokens, cookies, private keys, production-only confidential configuration, or private runtime data as chat persistence.
+- After saving, report which canonical files changed and what was intentionally not duplicated.
+
 ## Data / Secret Boundary
 
 Do not commit secrets, credentials, passwords, tokens, cookies, private keys, or production-only confidential configuration.
