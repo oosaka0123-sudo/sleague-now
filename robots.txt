@@ -1,2 +1,4 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://sleague.rss7.net/sitemap.xml
