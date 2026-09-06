@@ -50,3 +50,5 @@ jobs:
 
           echo "S.LEAGUE FTPS authentication and read-only /sleague access succeeded."
           echo "No upload, delete, mirror, rename, mkdir, or file modification was performed."
+
+# Triggered for one-time connection verification only.
