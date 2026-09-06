@@ -1,26 +1,88 @@
 # S.LEAGUE NOW — HANDOFF
 
-基準日: 2026-09-04 JST
+基準日: 2026-09-06 JST
 
-このファイルは、直近チャットの内容を会話ログではなく「現在状態・確定仕様・次の再開点」に圧縮して保存したものです。
+このファイルは、次のAI/SessionがGitHubから安全に再開するための「現在状態・確定仕様・再開点」です。会話ログは保存しません。
 
-## 現在の完成・正常確認済み
+## 現在の正本
 
-- ローカルPHP環境構築済み
-- 起動: `php -S localhost:8000 local-server.php`
-- SSL/CA設定済み
-- `fetch_all.php` 正常
-  - schedule: 20 events
-  - ranking: 390 rows
-- 本番cron: 毎時30分
-- ランキング
-  - 各戦ポイント表示
-  - 未開催は `—`
-  - 開催済み0点は `0`
-  - 合計表示
-  - `現在：第1戦終了 / 全4戦`
-  - `SEASON PROGRESS`
-- 本番ランキング正常表示を確認済み
+- Project Repository: `oosaka0123-sudo/sleague-now`
+- default branch: `main`
+- Master governance: `oosaka0123-sudo/ai-master`
+- 本番URL: `https://sleague.rss7.net/`
+- Project固有の現在状態はGitHubのcurrent code / Issue / PR / Commit / Actionsを優先する
+
+## 初回ソースImport完了
+
+2026-09-06、サーバーから取得した現行ZIPを確認・整理し、GitHub管理対象だけをImportした。
+
+- PR #5 `import: stage verified current S.LEAGUE NOW source`
+- squash merge済み
+- merge SHA: `8731bb3fb212ad8de5e8b9d236960cfc8b6c6e9a`
+
+`main` の主要領域:
+- `public/`
+- `inc/`
+- `cron/`
+- `assets/`
+- `data/`（保護用ファイルのみ）
+- `logs/`（保護用ファイルのみ）
+- root `.htaccess`
+- `robots.txt`
+- Search Console verification file
+
+Runtime生成データ、ログ本体、production-only helper、テスト用ファイル等はImport対象外。
+
+## Import検証
+
+- sanitized sourceのPHPは `php -l` で構文エラーなしを確認
+- `public/contact.php`
+- `public/event.php`
+- `public/index.php`
+- `public/ranking.php`
+- `public/schedule.php`
+  はZIP元ファイルとの一致を確認
+- `inc/view_helpers.php` は内容同一で末尾改行差のみ確認
+- `assets/css/site.css` はsource内容と本番表示を確認
+
+## 本番Live Verification
+
+Opera接続を使い、2026-09-06に本番で以下を確認済み。
+
+### HOME
+- HOME / RANKING / SCHEDULE 上部ナビ
+- NEXT EVENT
+- RANKING TOP5
+- UPCOMING SCHEDULE
+- LATEST VIDEO
+- footer / contact導線
+- schedule / ranking updated表示
+
+### RANKING
+- S.ONE / S.TWO / MASTERS切替
+- SHORT / LONG / MEN / WOMEN切替
+- 各戦ポイント
+- 未開催 `—`
+- 開催済み0点 `0`
+- 合計
+- `現在：第1戦終了 / 全4戦`
+- Instagramリンク / contact案内
+
+### SCHEDULE
+- event card
+- status / 日付 / 会場 / league / board
+- TBDセクション
+- footer注意書き
+- `S.LEAGUE公式サイト` リンク
+- contact導線
+
+### CONTACT
+- お問い合わせページ表示
+- 入力項目と必須/任意表示
+- 送信ボタン
+- footer
+
+フォーム送信そのものは今回のLive Verificationでは実行していない。
 
 ## ヘッダーナビ確定仕様
 
@@ -32,113 +94,80 @@
 - 全面クリック可能
 - 現在ページはシアン
 - PC/スマホ共通
-- フッター固定ナビは削除
-- お問い合わせは後回し
+- footer固定ナビは削除済み
 
-## schedule.php の安定版ルール
+## schedule.php 安定版ルール
 
-イベントカードは元の正常レイアウトを基準にする。
-
+- 現在のevent cardを正常基準とする
 - scheduleカード構造を不用意に変更しない
 - event-card系CSSを不用意に変更しない
-- 「詳細を見る 〉〉」改善は後回し
+- narrow fixで無関係なCSSを触らない
 
-注意書きの確定方針:
-- 上部の大きな注意喚起ボックスは削除
-- 上部の公式サイトボタンは削除
-- 下部の既存注意書きは残す
-- 文中の「S.LEAGUE公式サイト」だけ `https://sleague.jp/` へリンク
-- 新しいボタンは作らない
-- scheduleカードは触らない
+注意書き:
+- 上部の大きな注意喚起ボックスなし
+- 上部の公式サイトボタンなし
+- 下部既存注意書きを維持
+- 文中の `S.LEAGUE公式サイト` のみ公式サイトへリンク
+
+## RANKING 安定版ルール
+
+壊さない対象:
+- ranking table構造
+- 同順位の入力順
+- 各戦ポイント
+- 未開催 `—`
+- 開催済み0点 `0`
+- 合計
+- category切替
+- season summary / progress
 
 ## SEO / 公開状態
 
-SEO基本実装:
+実装済み:
 - title
 - meta description
 - canonical
 - OGP
 - Twitter Card
-- EVENTページの動的title / description / canonical
-- EVENT構造化データは確定日付・start_date・nameが揃う場合のみ出力
+- EVENT動的SEO
+- 条件付きEVENT構造化データ
 
-現在の公開設定:
-- `ENABLE_PUBLIC_INDEXING = true`
-- noindexは解除済み
-- Google Search Console 所有権確認済み
-- 本番URL: `https://sleague.rss7.net/`
-
-## CSS / 本番反映で起きたこと
-
-上部ナビ反映時、本番とローカルの共通ファイル差分により一時的に本文が真っ黒になる事象が発生。
-
-確認・対応した主な対象:
-- `public/index.php`
-- `public/ranking.php`
-- `public/schedule.php`
-- `public/event.php`
-- `inc/view_helpers.php`
-- `inc/seo_helper.php`
-- `assets/css/site.css`
-
-最終的にEdgeでは上部3分割ナビを正常表示できた。Chrome側ではキャッシュの影響が疑われた。
-
-`site.css` には以下のナビCSSが存在する:
-- `.header-nav`
-- `.header-nav__link`
-- `.header-nav__link.is-active`
-
-今後CSS反映が不安定な場合は、CSS URLへバージョンqueryを付ける運用を検討する。
-
-## Git
-
-ローカルGit導入済み。
-
-基準コミット:
-- `9b5367f`
-- `Baseline: stable S.LEAGUE NOW before next development`
-
-誤って `workspaceStorage` に作成した `.git` は削除済み。
-正しいGitはS.LEAGUE NOWプロジェクト直下。
-
-注意:
-- このGitHub Repositoryへのローカルソース本体の初回pushは、GitHub側で未確認のまま。
-- 現在GitHubにはProject bootstrap文書のみ存在するため、ローカル実装ファイルを記憶から再構築しないこと。
-- 次回はローカル側のGit実体を確認し、現在のソースをそのまま安全に初回pushする。
+公開状態:
+- public indexing有効
+- Google Search Console所有権確認済み
+- verification fileは維持する
 
 ## 本番反映
 
 現状はFileZillaによる手動アップロード。
 
-自動デプロイはまだ導入しない。
-本番反映時はローカルで正常確認後、変更対象を絞ってアップロードする。
-
-## 次にやること
-
-1. ローカルGitを `oosaka0123-sudo/sleague-now` の `main` に安全に接続・初回push
-2. GitHub上で実装ファイルと履歴を確認
-3. 必要ならREADMEを現実の構成に合わせて更新
-4. お問い合わせページ作成はその後
-5. SEO追加強化は必要時のみ
+- GitHub mergeとproduction deployは別
+- 本番変更Taskでは、確認後に変更対象を絞って反映する
+- 本番操作はProject `AGENTS.md` の境界に従う
 
 ## 絶対に壊さない
 
 - scheduleカードの正常レイアウト
 - event-card系CSS
-- rankingテーブル構造・表示
-- 各戦ポイント
-- SEASON PROGRESS
-- fetch/parser/cron
-- ヘッダーナビの確定デザイン
+- ranking table / 各戦ポイント / 合計
+- future `—` / held zero `0`
+- fetch / parser / cron
+- header nav確定デザイン
+- EVENT routing / grouping
+- CONTACT既存動作
+- root `.htaccess` routing whitelistとの整合
 
-## 再開ルール
+## 次の再開点
 
-次回はチャット履歴ではなく、まず以下を確認する。
+初回ソースImportは完了済み。次回は「初回push」から始めない。
 
-1. `oosaka0123-sudo/ai-master`
-2. このRepositoryの `README.md`
-3. `AGENTS.md`
-4. `HANDOFF.md`
-5. GitHubのcurrent code / Issue / PR / Actions / Commit
+新しいTask開始時:
+1. `oosaka0123-sudo/ai-master` の必要な開始ファイルを確認
+2. このRepositoryのcurrent `main`
+3. `README.md`
+4. `AGENTS.md`
+5. `HANDOFF.md`
+6. Open Issues / Open PRs / Latest Actions / current code
+7. 新しいTaskを小さなbranch / PRで進める
 
-GitHubの実態と文書が違う場合は、GitHubの実態を現在状態として扱う。
+GitHub実態とこの文書が違う場合は、GitHub実態を正としてこのHANDOFFを更新する。
