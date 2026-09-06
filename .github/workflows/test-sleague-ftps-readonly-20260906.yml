@@ -1,0 +1,52 @@
+name: Test S.LEAGUE FTPS read-only
+
+on:
+  push:
+    branches:
+      - test/lolipop-ftps-sleague-20260906
+
+permissions:
+  contents: read
+
+jobs:
+  test-sleague-ftps-readonly:
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ftp.lolipop.jp
+      FTP_SERVER_DIR: /sleague
+    steps:
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Verify FTPS login and read-only access
+        env:
+          FTP_USERNAME: ${{ secrets.SLEAGUE_FTP_USER || secrets.LOLIPOP_FTP_USERNAME || secrets.LOLIPOP_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.SLEAGUE_FTP_PASSWORD || secrets.LOLIPOP_FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          set +x
+          if [ -z "$FTP_USERNAME" ]; then
+            echo "::error::No S.LEAGUE/Lolipop FTP username secret is configured in this repository."
+            exit 1
+          fi
+          if [ -z "$FTP_PASSWORD" ]; then
+            echo "::error::No S.LEAGUE/Lolipop FTP password secret is configured in this repository."
+            exit 1
+          fi
+
+          lftp <<LFTP_EOF
+          set cmd:fail-exit true
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:passive-mode true
+          set net:timeout 20
+          set net:max-retries 2
+          open -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_SERVER"
+          cd "$FTP_SERVER_DIR"
+          pwd
+          cls -1 | head -n 5
+          bye
+          LFTP_EOF
+
+          echo "S.LEAGUE FTPS authentication and read-only /sleague access succeeded."
+          echo "No upload, delete, mirror, rename, mkdir, or file modification was performed."
