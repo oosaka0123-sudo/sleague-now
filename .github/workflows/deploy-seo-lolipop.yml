@@ -1,0 +1,60 @@
+name: Deploy SEO files to Lolipop
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'sitemap.xml'
+      - 'robots.txt'
+      - '.github/workflows/deploy-seo-lolipop.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: sleague-seo-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy sitemap and robots only
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate deploy inputs
+        run: |
+          set -euo pipefail
+          test -f sitemap.xml
+          test -f robots.txt
+          grep -q 'https://sleague.rss7.net/' sitemap.xml
+          grep -q '^Sitemap: https://sleague.rss7.net/sitemap.xml$' robots.txt
+
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y lftp
+
+      - name: Upload only SEO files
+        env:
+          FTP_SERVER: ${{ secrets.LOLIPOP_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.LOLIPOP_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.LOLIPOP_FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ "$FTP_SERVER" != "ftp.lolipop.jp" ]; then
+            echo "::error::LOLIPOP_FTP_SERVER must be ftp.lolipop.jp"
+            exit 1
+          fi
+
+          lftp <<LFTP_EOF
+          set cmd:fail-exit true
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:passive-mode true
+          set net:timeout 20
+          set net:max-retries 3
+          open -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_SERVER"
+          cd /sleague
+          put -O . sitemap.xml
+          put -O . robots.txt
+          bye
+          LFTP_EOF
