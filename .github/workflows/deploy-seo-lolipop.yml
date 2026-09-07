@@ -35,13 +35,17 @@ jobs:
 
       - name: Upload only SEO files
         env:
-          FTP_SERVER: ${{ secrets.LOLIPOP_FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.LOLIPOP_FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.LOLIPOP_FTP_PASSWORD }}
+          FTP_SERVER: ftp.lolipop.jp
+          FTP_USERNAME: ${{ secrets.SLEAGUE_FTP_USER || secrets.LOLIPOP_FTP_USERNAME || secrets.LOLIPOP_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.SLEAGUE_FTP_PASSWORD || secrets.LOLIPOP_FTP_PASSWORD }}
         run: |
           set -euo pipefail
-          if [ "$FTP_SERVER" != "ftp.lolipop.jp" ]; then
-            echo "::error::LOLIPOP_FTP_SERVER must be ftp.lolipop.jp"
+          if [ -z "$FTP_USERNAME" ]; then
+            echo "::error::No S.LEAGUE/Lolipop FTP username secret is configured in this repository."
+            exit 1
+          fi
+          if [ -z "$FTP_PASSWORD" ]; then
+            echo "::error::No S.LEAGUE/Lolipop FTP password secret is configured in this repository."
             exit 1
           fi
 
