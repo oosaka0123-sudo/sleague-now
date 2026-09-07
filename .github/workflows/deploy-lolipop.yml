@@ -1,0 +1,112 @@
+name: Deploy full S.LEAGUE NOW site to Lolipop
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sleague-full-lolipop-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ftp.lolipop.jp
+      FTP_SERVER_DIR: /sleague
+      SITE_URL: https://sleague.rss7.net/
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Validate source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .htaccess
+          test -f public/index.php
+          test -f public/ranking.php
+          test -f public/schedule.php
+          test -f public/contact.php
+          test -d inc
+          test -d cron
+          test -d assets
+
+      - name: Validate PHP syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v php >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y php-cli
+          fi
+          find public inc cron -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Prepare safe deployment bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          STAGE="$RUNNER_TEMP/sleague-deploy"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE/data" "$STAGE/logs"
+
+          cp .htaccess "$STAGE/.htaccess"
+          cp robots.txt sitemap.xml "$STAGE/"
+          for f in google*.html; do
+            [ -e "$f" ] && cp "$f" "$STAGE/"
+          done
+          cp -R public inc cron assets "$STAGE/"
+
+          # Runtime data/log bodies stay on the server. Only access-protection files are shipped.
+          [ -f data/.htaccess ] && cp data/.htaccess "$STAGE/data/.htaccess"
+          [ -f logs/.htaccess ] && cp logs/.htaccess "$STAGE/logs/.htaccess"
+
+          test ! -e "$STAGE/.github"
+          test ! -e "$STAGE/AGENTS.md"
+          test ! -e "$STAGE/HANDOFF.md"
+          echo 'Deployment bundle prepared without runtime-generated data or logs.'
+
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y lftp
+
+      - name: Upload to Lolipop without remote deletion
+        shell: bash
+        env:
+          FTP_USERNAME: ${{ secrets.SLEAGUE_FTP_USER || secrets.LOLIPOP_FTP_USERNAME || secrets.LOLIPOP_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.SLEAGUE_FTP_PASSWORD || secrets.LOLIPOP_FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          set +x
+          test -n "$FTP_USERNAME" || { echo '::error::S.LEAGUE/Lolipop FTP username is not configured.'; exit 1; }
+          test -n "$FTP_PASSWORD" || { echo '::error::S.LEAGUE/Lolipop FTP password is not configured.'; exit 1; }
+          [ "$FTP_SERVER" = 'ftp.lolipop.jp' ] || exit 1
+          [ "$FTP_SERVER_DIR" = '/sleague' ] || exit 1
+
+          STAGE="$RUNNER_TEMP/sleague-deploy"
+          lftp <<LFTP_EOF
+          set cmd:fail-exit true
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:passive-mode true
+          set net:timeout 20
+          set net:max-retries 3
+          open -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_SERVER"
+          mirror --reverse --verbose=1 --no-perms "$STAGE" "$FTP_SERVER_DIR"
+          bye
+          LFTP_EOF
+
+      - name: Verify production pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 3 "$SITE_URL" >/tmp/sleague-home.html
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 3 "${SITE_URL}ranking" >/tmp/sleague-ranking.html
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 3 "${SITE_URL}schedule" >/tmp/sleague-schedule.html
+          grep -qi '<html' /tmp/sleague-home.html
+          grep -qi '<html' /tmp/sleague-ranking.html
+          grep -qi '<html' /tmp/sleague-schedule.html
+          echo 'S.LEAGUE NOW production verification succeeded.'
