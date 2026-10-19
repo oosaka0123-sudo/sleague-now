@@ -73,7 +73,20 @@ if (ENABLE_RANKING) {
 <header class="site-header">
   <?php render_header_nav('home'); ?>
   <div class="site-header__eyebrow"><?= h(SITE_TAGLINE) ?></div>
-  <h1 class="site-header__title"><?= h(SITE_NAME) ?></h1>
+  <div class="site-header__title-row">
+    <h1 class="site-header__title"><?= h(SITE_NAME) ?></h1>
+    <button
+      type="button"
+      class="site-share-button"
+      id="site-share-button"
+      aria-label="このページを共有"
+      title="共有"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M18 16a3 3 0 0 0-2.38 1.17L8.91 13.8a3.2 3.2 0 0 0 0-1.6l6.71-3.37A3 3 0 1 0 15 7a3.2 3.2 0 0 0 .09.74L8.35 11.1A3 3 0 1 0 9 14.9l6.09 3.05A3 3 0 1 0 18 16Z"/>
+      </svg>
+    </button>
+  </div>
 </header>
 
 <main class="container">
@@ -209,5 +222,38 @@ if (ENABLE_RANKING) {
   <a class="site-footer__contact-link" href="contact.php">お問い合わせ</a>
 </footer>
 
+<script>
+(() => {
+  const button = document.getElementById('site-share-button');
+  if (!button) return;
+
+  const shareUrl = <?= json_encode(rtrim(BASE_URL, '/') . '/', JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+  const shareData = {
+    title: document.title,
+    text: 'S.LEAGUE NOW',
+    url: shareUrl
+  };
+
+  button.addEventListener('click', async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+        const originalLabel = button.getAttribute('aria-label');
+        button.setAttribute('aria-label', 'URLをコピーしました');
+        setTimeout(() => button.setAttribute('aria-label', originalLabel), 1500);
+        return;
+      }
+      window.prompt('このURLをコピーしてください', shareUrl);
+    } catch (error) {
+      if (error && error.name === 'AbortError') return;
+      window.prompt('このURLをコピーしてください', shareUrl);
+    }
+  });
+})();
+</script>
 </body>
 </html>
