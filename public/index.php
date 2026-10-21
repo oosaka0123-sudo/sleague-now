@@ -62,7 +62,7 @@ if (ENABLE_RANKING) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <?php render_seo_head(build_home_title(), SEO_HOME_DESCRIPTION, '/'); ?>
-<link rel="stylesheet" href="../assets/css/site.css">
+<link rel="stylesheet" href="../assets/css/site.css?v=20261021-share">
 </head>
 <body>
 
