@@ -162,7 +162,7 @@ if (ENABLE_RANKING) {
       <h2 class="home-section__title">Ranking Top5</h2>
       <a class="home-section__more" href="ranking.php">全ランキングを見る &rsaquo;</a>
     </div>
-    <table class="ranking-table">
+    <table class="ranking-table home-ranking-table">
       <thead>
         <tr>
           <th class="ranking-table__th-rank">順位</th>
