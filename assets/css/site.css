@@ -36,6 +36,13 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -799,7 +806,22 @@ a.event-card:focus-visible {
    ========================================================================== */
 
 .home-section {
+  min-width: 0;
+  max-width: 100%;
   margin-top: 22px;
+}
+
+.home-section > * {
+  max-width: 100%;
+}
+
+.home-hero,
+.home-next,
+.home-video,
+.home-upcoming-item,
+.home-ranking-table {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .home-section__heading {
@@ -858,9 +880,13 @@ a.event-card:focus-visible {
 }
 
 .home-hero__name {
+  min-width: 0;
+  max-width: 100%;
   font-size: 18px;
   font-weight: 700;
   margin: 8px 0 6px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .home-hero__meta {
@@ -895,9 +921,13 @@ a.event-card:focus-visible {
 }
 
 .home-next__name {
+  min-width: 0;
+  max-width: 100%;
   font-size: 16px;
   font-weight: 700;
   margin: 6px 0 6px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .home-next__meta {
