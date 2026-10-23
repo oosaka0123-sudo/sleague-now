@@ -753,6 +753,41 @@ a.event-card:focus-visible {
   }
 }
 
+/* HOME Top5は横スクロールせず、3列をスマホ幅に収める */
+@media (max-width: 699px) {
+  .home-ranking-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .home-ranking-table .ranking-table__th-rank,
+  .home-ranking-table .ranking-table__rank {
+    position: static;
+    width: 52px;
+  }
+
+  .home-ranking-table .ranking-table__th-name,
+  .home-ranking-table .ranking-table__name {
+    position: static;
+    min-width: 0;
+    width: auto;
+    white-space: normal;
+  }
+
+  .home-ranking-table .ranking-table__th-points,
+  .home-ranking-table .ranking-table__points {
+    width: 84px;
+    text-align: right;
+  }
+
+  .home-ranking-table thead th,
+  .home-ranking-table tbody td {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
 /* ===========================================================================
    下部固定ナビゲーション(HOME/RANKING/SCHEDULE共通)
    ========================================================================== */
