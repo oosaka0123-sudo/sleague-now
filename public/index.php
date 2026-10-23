@@ -15,6 +15,9 @@ require_once __DIR__ . '/../inc/seo_helper.php';
 require_once __DIR__ . '/../inc/video_helper.php';
 
 apply_robots_header();
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 // ---- スケジュール関連(ENABLE_SCHEDULEに従う) ----
 $currentEvent = null;
@@ -62,7 +65,7 @@ if (ENABLE_RANKING) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <?php render_seo_head(build_home_title(), SEO_HOME_DESCRIPTION, '/'); ?>
-<link rel="stylesheet" href="../assets/css/site.css?v=20261021-share">
+<link rel="stylesheet" href="../assets/css/site.css?v=20261023-mobilefix">
 </head>
 <body>
 
