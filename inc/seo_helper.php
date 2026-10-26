@@ -92,7 +92,7 @@ function render_seo_head(string $title, string $description, string $path, strin
 
     echo '<title>' . h($title) . "</title>\n";
     echo '<meta name="description" content="' . h($description) . "\">\n";
-    echo '<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">\n';
+    echo '<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">' . "\n";
 
     if (!allow_indexing()) {
         echo "<meta name=\"robots\" content=\"noindex, nofollow, noarchive\">\n";
