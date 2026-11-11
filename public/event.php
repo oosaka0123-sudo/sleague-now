@@ -92,6 +92,7 @@ render_seo_head(
     '@context' => 'https://schema.org',
     '@type' => 'Event',
     'name' => $group['name'],
+    'description' => build_event_description($group),
     'startDate' => $group['start_date'],
     'endDate' => $group['end_date'],
     'location' => [
